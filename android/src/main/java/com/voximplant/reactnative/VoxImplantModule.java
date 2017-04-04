@@ -32,7 +32,12 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
 
         this.reactContext = reactContext;
         this.client = VoxImplantClient.instance();
-        this.client.setAndroidContext(reactContext, true, true);
+
+        VoxImplantClient.VoxImplantClientConfig clientConfig = new VoxImplantClient.VoxImplantClientConfig();
+        clientConfig.enableVideo = true;
+        clientConfig.enableHWAcceleration = true;
+
+        this.client.setAndroidContext(reactContext, clientConfig);
         this.client.setCallback(this);
     }
 
@@ -119,14 +124,8 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     @ReactMethod
-    public void sendMessage(String callId, String text, ReadableMap headers) {
-        if (null == headers) {
-            Map<String, String> map = new HashMap<String, String>();
-            this.client.sendMessage(callId, text, map);
-        }
-        else {
-            this.client.sendMessage(callId, text, this.createHashMap(headers));
-        }
+    public void sendMessage(String callId, String text) {
+        this.client.sendMessage(callId, text);
     }
 
     @ReactMethod
@@ -183,7 +182,7 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     // VoxImplantCallback implementation
 
     @Override
-    public void onLoginSuccessful(String displayName) {
+    public void onLoginSuccessful(String displayName, LoginTokens loginTokens) {
         WritableMap params = Arguments.createMap();
         params.putString("displayName", displayName);
         sendEvent(this.reactContext, "LoginSuccessful", params);
@@ -194,6 +193,16 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
         WritableMap params = Arguments.createMap();
         params.putInt("errorCode", reason.ordinal());
         sendEvent(this.reactContext, "LoginFailed", params);
+    }
+
+    @Override
+    public void onRefreshTokenFailed(Integer integer) {
+
+    }
+
+    @Override
+    public void onRefreshTokenSuccess(LoginTokens loginTokens) {
+
     }
 
     @Override
@@ -231,7 +240,7 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     @Override
-    public void onCallDisconnected(String callId, Map<String, String> headers) {
+    public void onCallDisconnected(String callId, Map<String, String> headers, boolean answeredElsewhere) {
         WritableMap params = Arguments.createMap();
         params.putString("callId", callId);
         params.putMap("headers", this.createReactMap(headers));
@@ -284,11 +293,10 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     @Override
-    public void onMessageReceivedInCall(String callId, String text, Map<String, String> headers) {
+    public void onMessageReceivedInCall(String callId, String text) {
         WritableMap params = Arguments.createMap();
         params.putString("callId", callId);
         params.putString("text", text);
-        params.putMap("headers", this.createReactMap(headers));
         sendEvent(this.reactContext, "MessageReceivedInCall", params);
     }
 
@@ -315,7 +323,7 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     private Map<String, String> createHashMap(ReadableMap v) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         ReadableMapKeySetIterator it = v.keySetIterator();
         while (it.hasNextKey()) {
           String key = it.nextKey();
