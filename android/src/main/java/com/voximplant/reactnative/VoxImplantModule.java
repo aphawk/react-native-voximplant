@@ -53,6 +53,11 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     @ReactMethod
+    public void registerForPushNotifications(String token){
+        this.client.registerForPushNotifications(token);
+    }
+
+    @ReactMethod
     public void createCall(String to, boolean video, String customData, Callback callback) {
         String callId = this.client.createCall(to, video, customData);
         callback.invoke(callId);

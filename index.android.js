@@ -153,6 +153,11 @@ function VoxImplantSDK () {
   this.switchToCamera = function(cameraName) {
     VoxImplantModule.switchToCamera(cameraName);
   };
+
+  this.registerForPushNotifications = function(token){
+    VoxImplantModule.registerForPushNotifications(token);
+  };
+
 }
 
 module.exports = {
