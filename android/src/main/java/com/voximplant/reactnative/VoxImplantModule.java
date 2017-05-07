@@ -58,6 +58,14 @@ public class VoxImplantModule extends ReactContextBaseJavaModule implements VoxI
     }
 
     @ReactMethod
+    public void handlePushNotification(ReadableMap message){
+        Map<String, String> map = new HashMap<>();
+        String key = "voximplant";
+        map.put(key, message.getString(key));
+        this.client.handlePushNotification(map);
+    }
+
+    @ReactMethod
     public void createCall(String to, boolean video, String customData, Callback callback) {
         String callId = this.client.createCall(to, video, customData);
         callback.invoke(callId);

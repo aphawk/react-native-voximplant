@@ -158,6 +158,10 @@ function VoxImplantSDK () {
     VoxImplantModule.registerForPushNotifications(token);
   };
 
+  this.handlePushNotification = function(message){
+    VoxImplantModule.handlePushNotification(message);
+  }
+
 }
 
 module.exports = {
